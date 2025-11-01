@@ -99,6 +99,12 @@
       border-color: #ef4444 !important;
       background: #fef2f2;
     }
+    .correct-option {
+      background: #f0fdf4;
+      border: 1px solid #22c55e;
+      border-radius: 0.4rem;
+      padding: 0.15rem 0.4rem;
+    }
     .unanswered-list {
       margin-top: 0.75rem;
       font-size: 0.9rem;
@@ -691,7 +697,6 @@
       </fieldset>
 
       <div class="actions">
-        <button type="submit">Submit Page 3</button>
         <button type="button" class="secondary" id="clear-answers">Clear Answers</button>
         <a href="exam-page4.html" style="text-decoration:none;">
           <button type="button" class="secondary">Next Page →</button>
@@ -772,6 +777,7 @@
         if (fs) {
           fs.classList.remove("correct", "incorrect");
         }
+        document.querySelectorAll(`#fs-${qid} label`).forEach(l => l.classList.remove('correct-option'));
       });
 
       Object.keys(answerKey).forEach(qid => {
@@ -789,7 +795,11 @@
           score++;
           if (fs) fs.classList.add("correct");
         } else {
-          if (fs) fs.classList.add("incorrect");
+          const correctInput = document.querySelector(`input[name="${qid}"][value="${correct}"]`);
+          if (correctInput) {
+            const label = correctInput.closest('label');
+            if (label) label.classList.add('correct-option');
+          }
         }
       });
 
@@ -807,10 +817,47 @@
         if (checked) checked.checked = false;
         const fs = document.getElementById("fs-" + qid);
         if (fs) fs.classList.remove("correct", "incorrect");
+        document.querySelectorAll(`#fs-${qid} label`).forEach(l => l.classList.remove('correct-option'));
       });
       resultDiv.textContent = "";
       unansweredDiv.textContent = "";
       localStorage.removeItem(STORAGE_KEY);
+    });
+
+    // === Global Highlight Support ===
+    function highlightFromGlobalSubmission(summary) {
+      if (!summary) return;
+      Object.keys(answerKey).forEach(qid => {
+        const fs = document.getElementById('fs-' + qid);
+        if (fs) fs.classList.remove('correct','incorrect');
+        document.querySelectorAll(`#fs-${qid} label`).forEach(l => l.classList.remove('correct-option'));
+        const chosen = document.querySelector(`input[name="${qid}"]:checked`);
+        if (!chosen) return;
+        const correct = answerKey[qid];
+        if (chosen.value === correct) {
+          fs && fs.classList.add('correct');
+        } else {
+          const correctInput = document.querySelector(`input[name="${qid}"][value="${correct}"]`);
+          if (correctInput) {
+            const label = correctInput.closest('label');
+            if (label) label.classList.add('correct-option');
+          }
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const globalRaw = localStorage.getItem('CHRL_EXAM1_GLOBAL_RESULT');
+        if (globalRaw) {
+          highlightFromGlobalSubmission(JSON.parse(globalRaw));
+        }
+      } catch(_) {}
+    });
+
+    window.addEventListener('message', (event) => {
+      if (!event.data || event.data.type !== 'CHRL_GLOBAL_SUBMITTED') return;
+      highlightFromGlobalSubmission(event.data.summary);
     });
   </script>
 </body>

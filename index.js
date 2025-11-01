@@ -127,6 +127,12 @@ function submitEntireExam() {
   const summary = {exam: currentExam, score, total, percent, unanswered, timestamp};
   localStorage.setItem(GLOBAL_RESULT_STORAGE_KEY(currentExam), JSON.stringify(summary));
   renderGlobalResult(summary);
+  // Notify the currently loaded exam page (iframe) so it can highlight answers immediately
+  try {
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({type: 'CHRL_GLOBAL_SUBMITTED', summary}, '*');
+    }
+  } catch(_) {}
 }
 
 function renderGlobalResult(summary) {

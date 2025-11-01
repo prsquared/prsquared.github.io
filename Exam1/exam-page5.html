@@ -22,6 +22,7 @@
     #result { margin-top: 1rem; font-weight: 600; }
     .correct { border-color: #22c55e !important; background: #f0fdf4; }
     .incorrect { border-color: #ef4444 !important; background: #fef2f2; }
+  .correct-option { background:#f0fdf4; border:1px solid #22c55e; border-radius:0.4rem; padding:0.15rem 0.4rem; }
     .unanswered-list { margin-top: 0.75rem; font-size: 0.9rem; }
     .page-hint { background: #e2e8f0; padding: 0.6rem 0.75rem; border-radius: 0.4rem; font-size: 0.8rem; margin-bottom: 1rem; color: #0f172a; }
   </style>
@@ -344,7 +345,6 @@
       </fieldset>
 
       <div class="actions">
-        <button type="submit">Submit Page 5</button>
         <button type="button" class="secondary" id="clear-answers">Clear Answers</button>
         <a href="exam-page6.html" style="text-decoration:none;"><button type="button" class="secondary">Next Page →</button></a>
       </div>
@@ -428,6 +428,7 @@
       Object.keys(answerKey).forEach(qid => {
         const fs = document.getElementById("fs-" + qid);
         if (fs) fs.classList.remove("correct", "incorrect");
+        document.querySelectorAll(`#fs-${qid} label`).forEach(l=>l.classList.remove('correct-option'));
       });
 
       Object.keys(answerKey).forEach(qid => {
@@ -444,9 +445,18 @@
           }
           if (chosenVal === correct) {
             score++;
-            if (fs) fs.classList.add("correct");
+            fs && fs.classList.add("correct");
           } else {
-            if (fs) fs.classList.add("incorrect");
+            // highlight only correct answer text (no fieldset red)
+            // For short answers we can append a small indicator
+            if (fs) {
+              const indicator = document.createElement('div');
+              indicator.style.marginTop = '0.4rem';
+              indicator.style.fontSize = '0.75rem';
+              indicator.style.color = '#065f46';
+              indicator.textContent = `Correct: ${correct}`;
+              fs.appendChild(indicator);
+            }
           }
         } else {
           const chosen = document.querySelector(`input[name="${qid}"]:checked`);
@@ -457,9 +467,13 @@
           }
           if (chosen.value === correct) {
             score++;
-            if (fs) fs.classList.add("correct");
+            fs && fs.classList.add("correct");
           } else {
-            if (fs) fs.classList.add("incorrect");
+            const correctInput = document.querySelector(`input[name="${qid}"][value="${correct}"]`);
+            if (correctInput) {
+              const label = correctInput.closest('label');
+              if (label) label.classList.add('correct-option');
+            }
           }
         }
       });
@@ -483,11 +497,52 @@
         }
         const fs = document.getElementById("fs-" + qid);
         if (fs) fs.classList.remove("correct", "incorrect");
+        document.querySelectorAll(`#fs-${qid} label`).forEach(l=>l.classList.remove('correct-option'));
+        // remove appended indicators
+        if (fs) {
+          Array.from(fs.querySelectorAll('div')).forEach(div=>{ if(div.textContent && div.textContent.startsWith('Correct:')) div.remove(); });
+        }
       });
       resultDiv.textContent = "";
       unansweredDiv.textContent = "";
       localStorage.removeItem(STORAGE_KEY);
     });
+
+    function highlightFromGlobalSubmission(summary){
+      if(!summary) return;
+      Object.keys(answerKey).forEach(qid=>{
+        const fs = document.getElementById('fs-'+qid);
+        if (fs) fs.classList.remove('correct','incorrect');
+        document.querySelectorAll(`#fs-${qid} label`).forEach(l=>l.classList.remove('correct-option'));
+        if (fs) {
+          Array.from(fs.querySelectorAll('div')).forEach(div=>{ if(div.textContent && div.textContent.startsWith('Correct:')) div.remove(); });
+        }
+        if (qid.startsWith('q9') && parseInt(qid.substring(1),10) >=90 && parseInt(qid.substring(1),10)<=94){
+          const input = document.querySelector(`input[name="${qid}"]`);
+          if (!input || !input.value.trim()) return;
+          const val = input.value.trim().toLowerCase();
+          const correct = answerKey[qid];
+          if (val === correct){ fs && fs.classList.add('correct'); } else {
+            if (fs) {
+              const indicator=document.createElement('div');
+              indicator.style.marginTop='0.4rem';indicator.style.fontSize='0.75rem';indicator.style.color='#065f46';
+              indicator.textContent = `Correct: ${correct}`; fs.appendChild(indicator);
+            }
+          }
+          return;
+        }
+        const chosen = document.querySelector(`input[name="${qid}"]:checked`);
+        if(!chosen) return;
+        const correct = answerKey[qid];
+        if (chosen.value === correct){ fs && fs.classList.add('correct'); }
+        else {
+          const correctInput = document.querySelector(`input[name="${qid}"][value="${correct}"]`);
+          if (correctInput){ const label = correctInput.closest('label'); if(label) label.classList.add('correct-option'); }
+        }
+      });
+    }
+    document.addEventListener('DOMContentLoaded',()=>{ try{const g=localStorage.getItem('CHRL_EXAM1_GLOBAL_RESULT'); if(g) highlightFromGlobalSubmission(JSON.parse(g));}catch(_){}});
+    window.addEventListener('message',(e)=>{ if(e.data && e.data.type==='CHRL_GLOBAL_SUBMITTED'){ highlightFromGlobalSubmission(e.data.summary);} });
   </script>
 </body>
 </html>

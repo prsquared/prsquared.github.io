@@ -22,6 +22,7 @@
     #result { margin-top: 1rem; font-weight: 600; }
     .correct { border-color: #22c55e !important; background: #f0fdf4; }
     .incorrect { border-color: #ef4444 !important; background: #fef2f2; }
+  .correct-option { background:#f0fdf4; border:1px solid #22c55e; border-radius:0.4rem; padding:0.15rem 0.4rem; }
     .unanswered-list { margin-top: 0.75rem; font-size: 0.9rem; }
     .page-hint { background: #e2e8f0; padding: 0.6rem 0.75rem; border-radius: 0.4rem; font-size: 0.8rem; margin-bottom: 1rem; color: #0f172a; }
   </style>
@@ -190,7 +191,6 @@
       </fieldset>
 
       <div class="actions">
-        <button type="submit">Submit Page 13</button>
         <button type="button" class="secondary" id="clear-answers">Clear Answers</button>
         <a href="index.html" style="text-decoration:none;"><button type="button" class="secondary">Back to Index</button></a>
       </div>
@@ -263,29 +263,45 @@
       Object.keys(answerKey).forEach(qid => {
         const fs = document.getElementById("fs-" + qid);
         if (fs) fs.classList.remove("correct", "incorrect");
+        document.querySelectorAll(`#fs-${qid} label`).forEach(l=>l.classList.remove('correct-option'));
       });
 
       Object.keys(answerKey).forEach(qid => {
         const correct = answerKey[qid];
         let userVal = null;
+        const fs = document.getElementById("fs-" + qid);
         if (qid === 'q243' || qid === 'q246') {
           const el = document.getElementById(qid);
           userVal = el ? el.value.trim().toLowerCase() : '';
+          if (!userVal) {
+            unanswered.push(qid.toUpperCase());
+            if (fs) fs.classList.remove('correct','incorrect');
+            return;
+          }
+          if (userVal === correct) {
+            score++;
+            fs && fs.classList.add('correct');
+          } else {
+            if (fs) {
+              const indicator=document.createElement('div');
+              indicator.style.marginTop='0.4rem';indicator.style.fontSize='0.75rem';indicator.style.color='#065f46';
+              indicator.textContent=`Correct: ${correct}`; fs.appendChild(indicator);
+            }
+          }
         } else {
           const chosen = document.querySelector(`input[name="${qid}"]:checked`);
-          userVal = chosen ? chosen.value : '';
-        }
-        const fs = document.getElementById("fs-" + qid);
-        if (!userVal) {
-          unanswered.push(qid.toUpperCase());
-          if (fs) fs.classList.remove("correct", "incorrect");
-          return;
-        }
-        if (userVal === correct) {
-          score++;
-          if (fs) fs.classList.add("correct");
-        } else {
-          if (fs) fs.classList.add("incorrect");
+          if (!chosen) {
+            unanswered.push(qid.toUpperCase());
+            if (fs) fs.classList.remove('correct','incorrect');
+            return;
+          }
+            if (chosen.value === correct) {
+              score++;
+              fs && fs.classList.add('correct');
+            } else {
+              const correctInput=document.querySelector(`input[name="${qid}"][value="${correct}"]`);
+              if (correctInput){ const label=correctInput.closest('label'); if(label) label.classList.add('correct-option'); }
+            }
         }
       });
 
@@ -308,11 +324,39 @@
         }
         const fs = document.getElementById("fs-" + qid);
         if (fs) fs.classList.remove("correct", "incorrect");
+        document.querySelectorAll(`#fs-${qid} label`).forEach(l=>l.classList.remove('correct-option'));
+        if (fs) { Array.from(fs.querySelectorAll('div')).forEach(div=>{ if(div.textContent && div.textContent.startsWith('Correct:')) div.remove();}); }
       });
       resultDiv.textContent = "";
       unansweredDiv.textContent = "";
       localStorage.removeItem(STORAGE_KEY);
     });
+
+    function highlightFromGlobalSubmission(summary){
+      if(!summary) return;
+      Object.keys(answerKey).forEach(qid=>{
+        const fs=document.getElementById('fs-'+qid);
+        if(fs) fs.classList.remove('correct','incorrect');
+        document.querySelectorAll(`#fs-${qid} label`).forEach(l=>l.classList.remove('correct-option'));
+        if (fs) { Array.from(fs.querySelectorAll('div')).forEach(div=>{ if(div.textContent && div.textContent.startsWith('Correct:')) div.remove();}); }
+        const correct=answerKey[qid];
+        if (qid==='q243' || qid==='q246') {
+          const el=document.getElementById(qid);
+          if(!el || !el.value.trim()) return;
+          const val=el.value.trim().toLowerCase();
+          if (val===correct){ fs&&fs.classList.add('correct'); }
+          else {
+            if(fs){ const indicator=document.createElement('div'); indicator.style.marginTop='0.4rem';indicator.style.fontSize='0.75rem';indicator.style.color='#065f46'; indicator.textContent=`Correct: ${correct}`; fs.appendChild(indicator);} }
+          return;
+        }
+        const chosen=document.querySelector(`input[name="${qid}"]:checked`);
+        if(!chosen) return;
+        if(chosen.value===correct){ fs&&fs.classList.add('correct'); }
+        else { const correctInput=document.querySelector(`input[name="${qid}"][value="${correct}"]`); if(correctInput){ const label=correctInput.closest('label'); if(label) label.classList.add('correct-option'); } }
+      });
+    }
+    document.addEventListener('DOMContentLoaded',()=>{ try{const g=localStorage.getItem('CHRL_EXAM1_GLOBAL_RESULT'); if(g) highlightFromGlobalSubmission(JSON.parse(g));}catch(_){}});
+    window.addEventListener('message',(e)=>{ if(e.data && e.data.type==='CHRL_GLOBAL_SUBMITTED'){ highlightFromGlobalSubmission(e.data.summary);} });
   </script>
 </body>
 </html>

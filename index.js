@@ -22,6 +22,41 @@ const progressBarFillEl = document.getElementById("progress-bar-fill");
 const submitAllBtn = document.getElementById("submit-all-btn");
 const clearAllBtn = document.getElementById("clear-all-btn");
 const globalResultEl = document.getElementById("global-result");
+const startOverlay = document.getElementById("start-exam-overlay");
+const startExamBtn = document.getElementById("start-exam-btn");
+
+// ====== START / GATING CONFIG ======
+const EXAM_STARTED_KEY = (exam) => `CHRL_EXAM${exam}_STARTED`;
+function isExamStarted(exam) {
+  return localStorage.getItem(EXAM_STARTED_KEY(exam)) === '1';
+}
+function markExamStarted(exam) {
+  localStorage.setItem(EXAM_STARTED_KEY(exam), '1');
+}
+
+function updateStartGateUI() {
+  const started = isExamStarted(currentExam);
+  if (started) {
+    if (startOverlay) startOverlay.style.display = 'none';
+    if (iframe) iframe.style.display = 'block';
+    // enable nav buttons and page buttons
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === PAGES_PER_EXAM;
+    // re-enable page buttons
+    Array.from(pageButtonsContainer.querySelectorAll('button.page-btn')).forEach(btn => btn.disabled = false);
+    if (submitAllBtn) submitAllBtn.disabled = false;
+    if (clearAllBtn) clearAllBtn.disabled = false;
+  } else {
+    if (startOverlay) startOverlay.style.display = 'flex';
+    if (iframe) iframe.style.display = 'none';
+    // disable navigation until started
+    prevBtn.disabled = true;
+    nextBtn.disabled = true;
+    Array.from(pageButtonsContainer.querySelectorAll('button.page-btn')).forEach(btn => btn.disabled = true);
+    if (submitAllBtn) submitAllBtn.disabled = true;
+    if (clearAllBtn) clearAllBtn.disabled = true;
+  }
+}
 
 // ====== AGGREGATE PROGRESS CONFIG ======
 // Total questions: pages 1-12 have 20 each (240), page 13 has 10 (250 total).
@@ -205,12 +240,18 @@ function renderPageButtons() {
 
 // ====== LOAD FRAME ======
 function loadFrame() {
-  const src = PATH_FORMAT(currentExam, currentPage);
-  iframe.src = src;
-  // status text
-  statusEl.textContent = `Exam ${currentExam} – Page ${currentPage} of ${PAGES_PER_EXAM}`;
+  const started = isExamStarted(currentExam);
+  if (started) {
+    const src = PATH_FORMAT(currentExam, currentPage);
+    iframe.src = src;
+  } else {
+    // clear src so no preloading occurs before start
+    iframe.removeAttribute('src');
+  }
+  statusEl.textContent = started ? `Exam ${currentExam} – Page ${currentPage} of ${PAGES_PER_EXAM}` : `Exam ${currentExam} – Not Started`;
   updateNavButtons();
   updateAggregateProgress();
+  updateStartGateUI();
 }
 
 // ====== UPDATE NAV BUTTONS ======
@@ -268,6 +309,15 @@ if (clearAllBtn) clearAllBtn.addEventListener('click', () => {
   loadFrame();   // loads Exam1\exam-page1.html initially
   updateAggregateProgress();
   loadGlobalResult();
+  updateStartGateUI();
+
+  if (startExamBtn) {
+    startExamBtn.addEventListener('click', () => {
+      if (isExamStarted(currentExam)) return; // already started
+      markExamStarted(currentExam);
+      loadFrame(); // will now load first page
+    });
+  }
 
   // Listen for storage changes (in case pages are opened in another tab/window)
   window.addEventListener('storage', (e) => {
@@ -276,6 +326,9 @@ if (clearAllBtn) clearAllBtn.addEventListener('click', () => {
     }
     if (e.key === GLOBAL_RESULT_STORAGE_KEY(currentExam)) {
       loadGlobalResult();
+    }
+    if (e.key === EXAM_STARTED_KEY(currentExam)) {
+      loadFrame();
     }
   });
 })();

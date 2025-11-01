@@ -6,6 +6,7 @@ A static, client-side HTML/JavaScript application delivering a 250-question CHRL
 - `index.html` – Launcher UI (tabs, page navigation iframe, aggregate progress indicator)
 - `index.js` – Navigation logic (exam/page switching, iframe source updates, progress aggregation)
 - `Exam1/` – Folder containing `exam-page1.html` … `exam-page13.html`
+- `Exam2/` – (skeleton) placeholder pages `exam-page1.html` … `exam-page13.html` ready for question authoring
 
 ## Features
 - 250 globally numbered questions (q1–q250) across domains (Strategy, Professional Practice, Organizational Effectiveness, Workforce Planning & Talent Management, Labour & Employee Relations, Total Rewards, Learning & Development, Health, Wellness & Safe Workplace, HR Metrics & Financial Management, Enabling/Integration).
@@ -14,7 +15,7 @@ A static, client-side HTML/JavaScript application delivering a 250-question CHRL
 - Persistence: Answers stored per page via key pattern `CHRL_EXAM{examNumber}_PAGE{pageNumber}_ANSWERS`.
 - Aggregate Progress: Launcher shows overall answered count and percentage (0–250) derived from stored page answers.
 - Full Exam Submission: Launcher button computes total score across all 250 questions, lists unanswered IDs, and records timestamp.
-- Clear All: Launcher button removes every per-page answer key and the stored global result for a fresh attempt.
+- Clear All: Launcher button removes every per-page answer key and the stored global result for a fresh attempt and broadcasts a `postMessage` event (`CHRL_GLOBAL_CLEARED`) so the currently loaded page instantly resets its UI without manual refresh.
 - Scenario MCQs, standard MCQs, and limited short-answer text items (case-insensitive evaluation) in designated pages.
 - No build step, no external dependencies (pure vanilla JS + HTML + inline CSS).
 
@@ -34,13 +35,15 @@ Simply open `index.html` in a modern browser (Chrome, Edge, Firefox). The launch
 ## Storage Keys
 Pattern: `CHRL_EXAM1_PAGE{N}_ANSWERS` for Exam 1 pages. Do NOT modify existing keys if preserving user progress. When adding Exam 2, use `CHRL_EXAM2_PAGE{N}_ANSWERS` and update `NUMBER_OF_EXAMS` and page files accordingly.
 Global full-exam result key: `CHRL_EXAM{exam}_GLOBAL_RESULT` storing `{ exam, score, total, percent, unanswered:[], timestamp }`.
+Global clear broadcast (not persisted): parent iframe sends `window.postMessage({ type: 'CHRL_GLOBAL_CLEARED', exam, timestamp })` to the active page so it can run its local clear routine.
 
 ## Adding a New Exam or Pages
 1. Duplicate an existing page file as a template (`exam-pageX.html`).
 2. Update title, header, navigation links (prev/next), question range, STORAGE_KEY, and answerKey object.
-3. Maintain global question ID continuity (no reuse, sequential progression).
-4. If adding a new exam folder (e.g., `Exam2/`), create all page files first, then bump `NUMBER_OF_EXAMS` in `index.js`.
+3. Maintain global question ID continuity per exam (questions are 1–250 within each exam; do not mix IDs across exams in the launcher global key unless intentionally aggregating).
+4. If adding a new exam folder (e.g., `Exam3/`), create all page files first, then bump `NUMBER_OF_EXAMS` in `index.js`.
 5. Keep per-page maximum: 20 questions (except final page if fewer remain).
+6. For skeleton exams (like current `Exam2/`) authoring involves populating fieldsets, metadata comments, and extending the optional global consolidated key if you intend cross-exam full submission scoring in future.
 
 ## Short-Answer Items
 - Implemented by using text inputs/IDs with answer normalization (`trim().toLowerCase()`).

@@ -1,7 +1,7 @@
 // index.js
 
 // ====== CONFIGURATION ======
-const NUMBER_OF_EXAMS = 1;     // how many exam folders you have: Exam1, Exam2, ...
+const NUMBER_OF_EXAMS = 2;     // how many exam folders you have: Exam1, Exam2, ... (updated to include Exam2)
 const PAGES_PER_EXAM = 13;       // how many pages each exam has: exam-page1.html ... exam-pageN.html
 // Your path format: "Exam{index}\exam-page{page}.html"
 const PATH_FORMAT = (examIndex, pageIndex) => `Exam${examIndex}\\exam-page${pageIndex}.html`;
@@ -166,6 +166,12 @@ function clearAllAnswers() {
   localStorage.removeItem(GLOBAL_RESULT_STORAGE_KEY(currentExam));
   updateAggregateProgress();
   renderGlobalResult(null);
+  // Notify current iframe so loaded page can clear its UI instantly
+  try {
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({type: 'CHRL_GLOBAL_CLEARED', exam: currentExam, timestamp: Date.now()}, '*');
+    }
+  } catch(_) {}
 }
 
 // ====== RENDER TABS ======

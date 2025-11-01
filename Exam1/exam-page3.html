@@ -812,17 +812,21 @@
     });
 
     clearBtn.addEventListener("click", () => {
-      Object.keys(answerKey).forEach(qid => {
-        const checked = document.querySelector(`input[name="${qid}"]:checked`);
-        if (checked) checked.checked = false;
-        const fs = document.getElementById("fs-" + qid);
-        if (fs) fs.classList.remove("correct", "incorrect");
-        document.querySelectorAll(`#fs-${qid} label`).forEach(l => l.classList.remove('correct-option'));
-      });
-      resultDiv.textContent = "";
-      unansweredDiv.textContent = "";
-      localStorage.removeItem(STORAGE_KEY);
+        performLocalClear();
     });
+
+      function performLocalClear() {
+        Object.keys(answerKey).forEach(qid => {
+          const checked = document.querySelector(`input[name="${qid}"]:checked`);
+          if (checked) checked.checked = false;
+          const fs = document.getElementById("fs-" + qid);
+          if (fs) fs.classList.remove("correct", "incorrect");
+          document.querySelectorAll(`#fs-${qid} label`).forEach(l => l.classList.remove('correct-option'));
+        });
+        resultDiv.textContent = "";
+        unansweredDiv.textContent = "";
+        localStorage.removeItem(STORAGE_KEY);
+      }
 
     // === Global Highlight Support ===
     function highlightFromGlobalSubmission(summary) {
@@ -856,8 +860,12 @@
     });
 
     window.addEventListener('message', (event) => {
-      if (!event.data || event.data.type !== 'CHRL_GLOBAL_SUBMITTED') return;
-      highlightFromGlobalSubmission(event.data.summary);
+      if (!event.data) return;
+      if (event.data.type === 'CHRL_GLOBAL_SUBMITTED') {
+        highlightFromGlobalSubmission(event.data.summary);
+      } else if (event.data.type === 'CHRL_GLOBAL_CLEARED') {
+        performLocalClear();
+      }
     });
   </script>
 </body>

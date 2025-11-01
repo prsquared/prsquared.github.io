@@ -314,23 +314,27 @@
     });
 
     clearBtn.addEventListener("click", () => {
-      Object.keys(answerKey).forEach(qid => {
-        if (qid === 'q243' || qid === 'q246') {
-          const el = document.getElementById(qid);
-          if (el) el.value = '';
-        } else {
-          const checked = document.querySelector(`input[name="${qid}"]:checked`);
-          if (checked) checked.checked = false;
-        }
-        const fs = document.getElementById("fs-" + qid);
-        if (fs) fs.classList.remove("correct", "incorrect");
-        document.querySelectorAll(`#fs-${qid} label`).forEach(l=>l.classList.remove('correct-option'));
-        if (fs) { Array.from(fs.querySelectorAll('div')).forEach(div=>{ if(div.textContent && div.textContent.startsWith('Correct:')) div.remove();}); }
-      });
-      resultDiv.textContent = "";
-      unansweredDiv.textContent = "";
-      localStorage.removeItem(STORAGE_KEY);
+        performLocalClear();
     });
+
+      function performLocalClear() {
+        Object.keys(answerKey).forEach(qid => {
+          if (qid === 'q243' || qid === 'q246') {
+            const el = document.getElementById(qid);
+            if (el) el.value = '';
+          } else {
+            const checked = document.querySelector(`input[name="${qid}"]:checked`);
+            if (checked) checked.checked = false;
+          }
+          const fs = document.getElementById("fs-" + qid);
+          if (fs) fs.classList.remove("correct", "incorrect");
+          document.querySelectorAll(`#fs-${qid} label`).forEach(l=>l.classList.remove('correct-option'));
+          if (fs) { Array.from(fs.querySelectorAll('div')).forEach(div=>{ if(div.textContent && div.textContent.startsWith('Correct:')) div.remove();}); }
+        });
+        resultDiv.textContent = "";
+        unansweredDiv.textContent = "";
+        localStorage.removeItem(STORAGE_KEY);
+      }
 
     function highlightFromGlobalSubmission(summary){
       if(!summary) return;
@@ -356,7 +360,14 @@
       });
     }
     document.addEventListener('DOMContentLoaded',()=>{ try{const g=localStorage.getItem('CHRL_EXAM1_GLOBAL_RESULT'); if(g) highlightFromGlobalSubmission(JSON.parse(g));}catch(_){}});
-    window.addEventListener('message',(e)=>{ if(e.data && e.data.type==='CHRL_GLOBAL_SUBMITTED'){ highlightFromGlobalSubmission(e.data.summary);} });
+    window.addEventListener('message',(e)=>{ 
+      if(!e.data) return; 
+      if(e.data.type==='CHRL_GLOBAL_SUBMITTED'){ 
+        highlightFromGlobalSubmission(e.data.summary);
+      } else if (e.data.type==='CHRL_GLOBAL_CLEARED') {
+        performLocalClear();
+      }
+    });
   </script>
 </body>
 </html>

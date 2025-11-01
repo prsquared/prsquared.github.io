@@ -816,7 +816,10 @@
     });
 
     clearBtn.addEventListener("click", () => {
-      // clear radios
+      performLocalClear();
+    });
+
+    function performLocalClear() {
       Object.keys(answerKey).forEach(qid => {
         const checked = document.querySelector(`input[name="${qid}"]:checked`);
         if (checked) checked.checked = false;
@@ -827,7 +830,7 @@
       resultDiv.textContent = "";
       unansweredDiv.textContent = "";
       localStorage.removeItem(STORAGE_KEY);
-    });
+    }
 
     // === Global Highlight Support ===
     function highlightFromGlobalSubmission(summary) {
@@ -865,8 +868,13 @@
 
     // Listen for message from parent window after global submission
     window.addEventListener('message', (event) => {
-      if (!event.data || event.data.type !== 'CHRL_GLOBAL_SUBMITTED') return;
-      highlightFromGlobalSubmission(event.data.summary);
+      if (!event.data) return;
+      if (event.data.type === 'CHRL_GLOBAL_SUBMITTED') {
+        highlightFromGlobalSubmission(event.data.summary);
+      } else if (event.data.type === 'CHRL_GLOBAL_CLEARED') {
+        // parent cleared all answers globally for the exam
+        performLocalClear();
+      }
     });
   </script>
 </body>

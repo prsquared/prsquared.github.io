@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Priyesh Prasannan — Java Developer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0d0d0d;
+      --paper: #f5f0e8;
+      --accent: #e8421a;
+      --accent2: #1a6ee8;
+      --muted: #888;
+      --border: #d4cfc5;
+      --card: #ffffff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 3rem;
+      background: var(--paper);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+    }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding-top: 5rem;
+      overflow: hidden;
+    }
+    .hero-left {
+      padding: 6rem 3rem 4rem 5rem;
+      display: flex; flex-direction: column; justify-content: center;
+      position: relative;
+    }
+    .hero-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.2s forwards;
+    }
+    .hero-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 8vw, 8rem);
+      line-height: 0.9;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+      opacity: 0;
+      animation: fadeUp 0.7s 0.35s forwards;
+    }
+    .hero-name span { color: var(--accent); }
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(1.4rem, 3vw, 2.4rem);
+      letter-spacing: 0.1em;
+      color: var(--accent2);
+      margin-top: 0.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.5s forwards;
+    }
+    .hero-bio {
+      margin-top: 2rem;
+      max-width: 480px;
+      line-height: 1.75;
+      font-size: 1rem;
+      color: #444;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.65s forwards;
+    }
+    .hero-cta {
+      margin-top: 2.5rem;
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.8s forwards;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.75rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 2px solid var(--ink);
+      color: var(--ink);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .btn:hover { background: var(--ink); color: var(--paper); }
+    .btn.filled { background: var(--accent); border-color: var(--accent); color: white; }
+    .btn.filled:hover { background: #c33510; border-color: #c33510; }
+
+    .hero-right {
+      position: relative;
+      background: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(232,66,26,0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,66,26,0.15) 1px, transparent 1px);
+      background-size: 48px 48px;
+      animation: gridPan 20s linear infinite;
+    }
+    @keyframes gridPan {
+      from { background-position: 0 0; }
+      to { background-position: 48px 48px; }
+    }
+    .hero-stats {
+      position: relative; z-index: 2;
+      display: grid; grid-template-rows: repeat(3, auto);
+      gap: 2.5rem; padding: 3rem;
+      opacity: 0; animation: fadeIn 1s 0.9s forwards;
+    }
+    .stat-block { text-align: center; }
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 5rem;
+      color: var(--accent);
+      line-height: 1;
+      display: block;
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .stat-divider {
+      width: 40px; height: 1px;
+      background: rgba(232,66,26,0.4);
+      margin: 0 auto;
+    }
+
+    /* ── SECTIONS ── */
+    section { padding: 6rem 5rem; }
+    .section-header {
+      display: flex; align-items: baseline; gap: 1.5rem;
+      margin-bottom: 3.5rem;
+    }
+    .section-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      letter-spacing: 0.04em;
+      color: var(--ink);
+    }
+    .section-line {
+      flex: 1; height: 1px;
+      background: var(--border);
+    }
+
+    /* ── EXPERIENCE ── */
+    #experience { background: var(--ink); color: var(--paper); }
+    #experience .section-title { color: var(--paper); }
+    #experience .section-line { background: rgba(255,255,255,0.15); }
+    #experience .section-num { color: var(--accent); }
+
+    .exp-grid { display: grid; gap: 0; }
+    .exp-item {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 2rem;
+      padding: 2.5rem 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      transition: background 0.2s;
+    }
+    .exp-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .exp-meta {}
+    .exp-dates {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    .exp-company {
+      font-weight: 500;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.05em;
+    }
+    .exp-role {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.06em;
+      color: white;
+      margin-bottom: 0.75rem;
+    }
+    .exp-location {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.08em;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 1rem;
+    }
+    .exp-bullets { list-style: none; }
+    .exp-bullets li {
+      font-size: 0.9rem;
+      line-height: 1.65;
+      color: rgba(255,255,255,0.65);
+      padding-left: 1.2rem;
+      position: relative;
+      margin-bottom: 0.5rem;
+    }
+    .exp-bullets li::before {
+      content: '→';
+      position: absolute; left: 0;
+      color: var(--accent);
+      font-size: 0.75rem;
+    }
+    .exp-tags {
+      display: flex; flex-wrap: wrap; gap: 0.4rem;
+      margin-top: 1rem;
+    }
+    .exp-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid rgba(232,66,26,0.4);
+      color: var(--accent);
+    }
+
+    /* ── SKILLS ── */
+    #skills { background: var(--paper); }
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .skill-card {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 1.75rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .skill-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    }
+    .skill-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent);
+    }
+    .skill-category {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+    .skill-items {
+      display: flex; flex-wrap: wrap; gap: 0.4rem;
+    }
+    .skill-pill {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      font-size: 0.78rem;
+      padding: 0.3rem 0.7rem;
+      color: var(--ink);
+      font-weight: 400;
+      transition: all 0.15s;
+    }
+    .skill-pill:hover {
+      background: var(--ink);
+      color: white;
+      border-color: var(--ink);
+    }
+
+    /* ── PROJECTS ── */
+    #projects { background: #f0ebe0; }
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+    .project-card {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 2rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    .project-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.1);
+    }
+    .project-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      color: var(--border);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    .project-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+      margin-bottom: 0.75rem;
+    }
+    .project-desc {
+      font-size: 0.875rem;
+      line-height: 1.7;
+      color: #555;
+      margin-bottom: 1.25rem;
+    }
+    .project-stack {
+      display: flex; flex-wrap: wrap; gap: 0.35rem;
+    }
+    .stack-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      padding: 0.2rem 0.55rem;
+      background: var(--ink);
+      color: white;
+    }
+
+    /* ── EDUCATION ── */
+    #education { background: var(--ink); }
+    #education .section-title { color: white; }
+    #education .section-line { background: rgba(255,255,255,0.12); }
+    .edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .edu-card {
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .edu-card::after {
+      content: '';
+      position: absolute; bottom: 0; right: 0;
+      width: 80px; height: 80px;
+      background: var(--accent);
+      opacity: 0.08;
+      border-radius: 50%;
+      transform: translate(30%, 30%);
+    }
+    .edu-year {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      color: var(--accent);
+      opacity: 0.4;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    .edu-degree {
+      font-weight: 500;
+      font-size: 1rem;
+      color: white;
+      margin-bottom: 0.4rem;
+    }
+    .edu-school {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.5;
+    }
+
+    /* ── CONTACT ── */
+    #contact { background: var(--accent); }
+    #contact .section-title { color: white; }
+    #contact .section-num { color: rgba(255,255,255,0.6); }
+    #contact .section-line { background: rgba(255,255,255,0.25); }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    .contact-headline {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      color: white;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+    .contact-sub {
+      color: rgba(255,255,255,0.75);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+    .contact-links {
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+    .contact-link {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: rgba(255,255,255,0.12);
+      text-decoration: none;
+      color: white;
+      font-size: 0.9rem;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: background 0.2s;
+    }
+    .contact-link:hover { background: rgba(255,255,255,0.22); }
+    .contact-icon {
+      font-size: 1.1rem;
+      width: 24px; text-align: center;
+    }
+    .contact-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.55);
+      display: block;
+      margin-bottom: 0.1rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #080808;
+      padding: 2rem 5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+    }
+    .footer-copy {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.2);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 1rem; }
+      #hero { grid-template-columns: 1fr; }
+      .hero-left { padding: 5rem 1.5rem 3rem; }
+      .hero-right { min-height: 260px; }
+      .hero-stats { grid-template-rows: auto; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+      .stat-num { font-size: 3rem; }
+      section { padding: 4rem 1.5rem; }
+      .exp-item { grid-template-columns: 1fr; gap: 0.75rem; }
+      .edu-grid { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+      footer { padding: 1.5rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">PP</a>
+  <ul class="nav-links">
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <p class="hero-eyebrow">// Available for opportunities</p>
+    <h1 class="hero-name">Priyesh<br><span>Prasannan</span></h1>
+    <p class="hero-title">Java Developer</p>
+    <p class="hero-bio">
+      8+ years building enterprise-grade web applications with Java, Spring Boot, and Angular.
+      Specializing in microservices architecture, legacy modernization, and AI-assisted delivery.
+    </p>
+    <div class="hero-cta">
+      <a href="#experience" class="btn filled">View Experience</a>
+      <a href="#contact" class="btn">Get in Touch</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-grid"></div>
+    <div class="hero-stats">
+      <div class="stat-block">
+        <span class="stat-num">8+</span>
+        <span class="stat-label">Years Experience</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-block">
+        <span class="stat-num">2</span>
+        <span class="stat-label">Major Companies</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-block">
+        <span class="stat-num">∞</span>
+        <span class="stat-label">Bugs Squashed</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-header">
+    <span class="section-num">01 /</span>
+    <h2 class="section-title">Experience</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="exp-grid">
+    <div class="exp-item reveal">
+      <div class="exp-meta">
+        <span class="exp-dates">Apr 2021 – Mar 2026</span>
+        <span class="exp-company">OpenText Corporation</span>
+      </div>
+      <div class="exp-body">
+        <div class="exp-role">Software Engineer</div>
+        <div class="exp-location">📍 Toronto, ON</div>
+        <ul class="exp-bullets">
+          <li>Delivered key modules of  OpenText Intelligence, serving thousands of enterprise users across UI and backend.</li>
+          <li>Led migration of legacy monolithic apps from Servlet 3 to Servlet 6 — boosting performance by ~30%.</li>
+          <li>Integrated Spring MVC into existing modules, reducing code duplication by 40%.</li>
+          <li>Leveraged GitHub Copilot for automated documentation, unit-test generation, and code refactoring.</li>
+          <li>Implemented automated testing and code review via Claude AI, improving delivery quality and review turnaround.</li>
+          <li>Onboarded and mentored new developers, accelerating their path to productivity.</li>
+        </ul>
+        <div class="exp-tags">
+          <span class="exp-tag">Java 17</span>
+          <span class="exp-tag">Spring Boot 3</span>
+          <span class="exp-tag">Angular 16</span>
+          <span class="exp-tag">Docker</span>
+          <span class="exp-tag">Aviator AI</span>
+          <span class="exp-tag">GCP</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-meta">
+        <span class="exp-dates">Oct 2019 – Apr 2021</span>
+        <span class="exp-company">Career Break</span>
+      </div>
+      <div class="exp-body">
+        <div class="exp-role">Relocation & Upskilling</div>
+        <div class="exp-location">📍 Toronto, ON</div>
+        <ul class="exp-bullets">
+          <li>Relocated to Toronto, Canada and transitioned into the Canadian tech landscape.</li>
+          <li>Completed the Software Development Bridging Program at Humber College, focused on Canadian industry practices and modern software development.</li>
+        </ul>
+        <div class="exp-tags">
+          <span class="exp-tag">Humber College</span>
+          <span class="exp-tag">Software Development</span>
+          <span class="exp-tag">Bridging Program</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-meta">
+        <span class="exp-dates">May 2014 – Oct 2019</span>
+        <span class="exp-company">Xactly Corporation</span>
+      </div>
+      <div class="exp-body">
+        <div class="exp-role">Software Engineer</div>
+        <div class="exp-location">📍 Bengaluru, India</div>
+        <ul class="exp-bullets">
+          <li>Engineered microservices for DocuSign e-signature and PDF generation used by thousands in production.</li>
+          <li>Implemented core business logic for a B2B SaaS sales compensation platform.</li>
+          <li>Built Java clients to streamline production bug resolution workflows.</li>
+          <li>Received the X-Factor Award for excellence in innovation and delivery.</li>
+        </ul>
+        <div class="exp-tags">
+          <span class="exp-tag">Spring Boot</span>
+          <span class="exp-tag">RabbitMQ</span>
+          <span class="exp-tag">Kafka</span>
+          <span class="exp-tag">Oracle</span>
+          <span class="exp-tag">REST APIs</span>
+          <span class="exp-tag">Headless Chrome</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-header">
+    <span class="section-num">02 /</span>
+    <h2 class="section-title">Skills</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="skills-grid">
+    <div class="skill-card reveal">
+      <div class="skill-category">Languages</div>
+      <div class="skill-items">
+        <span class="skill-pill">Java</span>
+        <span class="skill-pill">TypeScript</span>
+        <span class="skill-pill">JavaScript</span>
+        <span class="skill-pill">SQL</span>
+        <span class="skill-pill">HTML5</span>
+        <span class="skill-pill">CSS3</span>
+      </div>
+    </div>
+    <div class="skill-card reveal">
+      <div class="skill-category">Frameworks</div>
+      <div class="skill-items">
+        <span class="skill-pill">Spring Boot</span>
+        <span class="skill-pill">Spring MVC</span>
+        <span class="skill-pill">Spring Security</span>
+        <span class="skill-pill">JPA/Hibernate</span>
+        <span class="skill-pill">Angular</span>
+        <span class="skill-pill">JUnit</span>
+        <span class="skill-pill">Mockito</span>
+      </div>
+    </div>
+    <div class="skill-card reveal">
+      <div class="skill-category">Tools & Platforms</div>
+      <div class="skill-items">
+        <span class="skill-pill">Maven</span>
+        <span class="skill-pill">Gradle</span>
+        <span class="skill-pill">Git</span>
+        <span class="skill-pill">Jenkins</span>
+        <span class="skill-pill">Docker</span>
+        <span class="skill-pill">Kubernetes</span>
+        <span class="skill-pill">SonarQube</span>
+        <span class="skill-pill">Postman</span>
+        <span class="skill-pill">OpenAPI</span>
+      </div>
+    </div>
+    <div class="skill-card reveal">
+      <div class="skill-category">Databases</div>
+      <div class="skill-items">
+        <span class="skill-pill">Oracle</span>
+        <span class="skill-pill">MySQL</span>
+        <span class="skill-pill">PostgreSQL</span>
+        <span class="skill-pill">H2</span>
+      </div>
+    </div>
+    <div class="skill-card reveal">
+      <div class="skill-category">Messaging & Integration</div>
+      <div class="skill-items">
+        <span class="skill-pill">Kafka</span>
+        <span class="skill-pill">RabbitMQ</span>
+        <span class="skill-pill">REST APIs</span>
+        <span class="skill-pill">Swagger</span>
+      </div>
+    </div>
+    <div class="skill-card reveal">
+      <div class="skill-category">Cloud, DevOps & AI</div>
+      <div class="skill-items">
+        <span class="skill-pill">GCP</span>
+        <span class="skill-pill">AWS</span>
+        <span class="skill-pill">CI/CD (Jenkins)</span>
+        <span class="skill-pill">GitHub Copilot</span>
+        <span class="skill-pill">Claude Code</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-header">
+    <span class="section-num">03 /</span>
+    <h2 class="section-title">Projects</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="projects-grid">
+    <div class="project-card reveal">
+      <div class="project-num">01</div>
+      <div class="project-name">OpenText Intelligence</div>
+      <p class="project-desc">Migrated core modules from Servlet 3 to Servlet 6 and unified request handling via Spring MVC. Implemented automated testing and code  review via Claude Code.</p>
+      <div class="project-stack">
+        <span class="stack-tag">Java 17</span>
+        <span class="stack-tag">Spring Core</span>
+        <span class="stack-tag">Spring Boot 3</span>
+        <span class="stack-tag">Angular 16</span>
+      </div>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">02</div>
+      <div class="project-name">Declarative BI</div>
+      <p class="project-desc">Built querying capabilities into BI and Reporting platform with Angular front-end and Spring backend, integrating LLMs for natural-language-driven insights and adaptive report generation.</p>
+      <div class="project-stack">
+        <span class="stack-tag">Java 17</span>
+        <span class="stack-tag">Spring</span>
+        <span class="stack-tag">Angular 16</span>
+        <span class="stack-tag">Amazon Nova</span>
+      </div>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">03</div>
+      <div class="project-name">DocuSign Microservice</div>
+      <p class="project-desc">Developed a production microservice to send and track e-signature documents via the DocuSign API — now used by thousands of users in production daily.</p>
+      <div class="project-stack">
+        <span class="stack-tag">Spring Boot</span>
+        <span class="stack-tag">REST</span>
+        <span class="stack-tag">Oracle</span>
+        <span class="stack-tag">DocuSign API</span>
+      </div>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">04</div>
+      <div class="project-name">PDF Generation Service</div>
+      <p class="project-desc">Designed and deployed a high-availability microservice for on-demand PDF creation using headless browsers, backed by RabbitMQ for async processing at scale.</p>
+      <div class="project-stack">
+        <span class="stack-tag">Spring Boot</span>
+        <span class="stack-tag">Headless Chrome</span>
+        <span class="stack-tag">RabbitMQ</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="section-header">
+    <span class="section-num">04 /</span>
+    <h2 class="section-title">Education</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="edu-grid">
+    <div class="edu-card reveal">
+      <div class="edu-year">2013</div>
+      <div class="edu-degree">M.Tech — Computer & Information Science</div>
+      <div class="edu-school">Cochin University of Science and Technology<br>Cochin, Kerala, India</div>
+    </div>
+    <div class="edu-card reveal">
+      <div class="edu-year">2009</div>
+      <div class="edu-degree">B.Tech — Computer Science</div>
+      <div class="edu-school">Model Engineering College<br>Cochin, Kerala, India</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-header">
+    <span class="section-num">05 /</span>
+    <h2 class="section-title">Contact</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="contact-grid">
+    <div>
+      <div class="contact-headline">Let's Build<br>Something Great.</div>
+      <p class="contact-sub">Open to senior Java/full-stack roles, contract opportunities, and interesting engineering challenges. Based in Toronto — remote-friendly.</p>
+    </div>
+    <div class="contact-links">
+      <a href="/cdn-cgi/l/email-protection#3747455e4e52445f0405060e0f0f77505a565e5b1954585a" class="contact-link">
+        <span class="contact-icon">✉</span>
+        <div>
+          <span class="contact-label">Email</span>
+          <span class="__cf_email__" data-cfemail="c8b8baa1b1adbba0fbfaf9f1f0f088afa5a9a1a4e6aba7a5">priyesh.prasannan88@gmail.com</span>
+        </div>
+      </a>
+      <a href="tel:+15199022918" class="contact-link">
+        <span class="contact-icon">☎</span>
+        <div>
+          <span class="contact-label">Phone</span>
+          +1 (519) 902-2918
+        </div>
+      </a>
+      <a href="https://www.linkedin.com/in/priyesh-prasannan" target="_blank" class="contact-link">
+        <span class="contact-icon">in</span>
+        <div>
+          <span class="contact-label">LinkedIn</span>
+          linkedin.com/in/priyesh-prasannan
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-name">Priyesh Prasannan</span>
+  <span class="footer-copy">© 2026 — Built with intention.</span>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

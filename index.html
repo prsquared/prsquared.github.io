@@ -76,8 +76,6 @@
       text-transform: uppercase;
       color: var(--accent);
       margin-bottom: 1.5rem;
-      opacity: 0;
-      animation: fadeUp 0.7s 0.2s forwards;
     }
     .hero-name {
       font-family: 'Bebas Neue', sans-serif;
@@ -85,8 +83,6 @@
       line-height: 0.9;
       letter-spacing: 0.02em;
       color: var(--ink);
-      opacity: 0;
-      animation: fadeUp 0.7s 0.35s forwards;
     }
     .hero-name span { color: var(--accent); }
     .hero-title {
@@ -95,8 +91,6 @@
       letter-spacing: 0.1em;
       color: var(--accent2);
       margin-top: 0.5rem;
-      opacity: 0;
-      animation: fadeUp 0.7s 0.5s forwards;
     }
     .hero-bio {
       margin-top: 2rem;
@@ -104,14 +98,10 @@
       line-height: 1.75;
       font-size: 1rem;
       color: #444;
-      opacity: 0;
-      animation: fadeUp 0.7s 0.65s forwards;
     }
     .hero-cta {
       margin-top: 2.5rem;
       display: flex; gap: 1rem; flex-wrap: wrap;
-      opacity: 0;
-      animation: fadeUp 0.7s 0.8s forwards;
     }
     .btn {
       display: inline-block;
@@ -152,7 +142,6 @@
       position: relative; z-index: 2;
       display: grid; grid-template-rows: repeat(3, auto);
       gap: 2.5rem; padding: 3rem;
-      opacity: 0; animation: fadeIn 1s 0.9s forwards;
     }
     .stat-block { text-align: center; }
     .stat-num {
@@ -480,14 +469,87 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
+    /* ── CHAT WIDGET ── */
+    .chat-widget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 500px;
+      height: 600px;
+      z-index: 1000;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .chat-widget.minimized {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+    }
+    .chat-widget.minimized .chat-content {
+      display: none;
+    }
+    .chat-widget.minimized .chat-toggle {
+      display: flex;
+    }
+    .chat-toggle {
+      width: 100%;
+      height: 100%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+    .chat-toggle:hover {
+      background: #c33510;
+    }
+    .chat-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background: var(--accent);
+      color: white;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .chat-minimize {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+    .chat-minimize:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .chat-widget iframe {
+      flex: 1;
+      border: none;
+    }
+
     /* ── ANIMATIONS ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; } to { opacity: 1; }
-    }
 
     /* ── SCROLL REVEAL ── */
     .reveal {
@@ -514,6 +576,8 @@
       .edu-grid { grid-template-columns: 1fr; }
       .contact-grid { grid-template-columns: 1fr; }
       footer { padding: 1.5rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+      .chat-widget { width: 400px; height: 550px; }
+      .chat-widget.minimized { width: 50px; height: 50px; }
     }
   </style>
 </head>
@@ -845,6 +909,18 @@
   <span class="footer-copy">© 2026 — Built with intention.</span>
 </footer>
 
+<!-- CHAT WIDGET -->
+<div id="chat-widget" class="chat-widget">
+  <div class="chat-toggle">💬</div>
+  <div class="chat-content">
+    <div class="chat-header">
+      <span>Chat with AI Assistant</span>
+      <button class="chat-minimize">-</button>
+    </div>
+    <iframe src="https://huggingface.co/spaces/prsquared/prsquared-bot/embed" width="100%" height="500" frameborder="0"></iframe>
+  </div>
+</div>
+
 <script>
   // Scroll reveal
   const reveals = document.querySelectorAll('.reveal');
@@ -857,6 +933,19 @@
     });
   }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
   reveals.forEach(el => observer.observe(el));
+
+  // Chat widget toggle
+  const chatWidget = document.getElementById('chat-widget');
+  const chatToggle = document.querySelector('.chat-toggle');
+  const chatMinimize = document.querySelector('.chat-minimize');
+
+  chatToggle.addEventListener('click', () => {
+    chatWidget.classList.remove('minimized');
+  });
+
+  chatMinimize.addEventListener('click', () => {
+    chatWidget.classList.add('minimized');
+  });
 </script>
 </body>
 </html>
